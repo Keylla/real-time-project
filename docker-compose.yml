@@ -36,8 +36,9 @@ services:
       - kafka
     environment:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-    restart: on-failure
-
+      - CONFIG_PATH=/app/config.yaml
+    volumes:
+      - ./producer:/app
   consumer:
     build:
       context: ./consumer
@@ -46,11 +47,19 @@ services:
       - mongodb
     environment:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - CONFIG_FILE=config.yml
+      - CONFIG_PATH=/app/config.yaml
     volumes:
       - ./consumer:/app
-    restart: on-failure
-    
-
+  dashboard:
+    build:
+      context: ./dashboard
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./dashboard:/app  
+    environment:
+      - CONFIG_PATH=/app/config.yaml
+    depends_on:
+      - mongodb
 volumes:
   mongodb_data:

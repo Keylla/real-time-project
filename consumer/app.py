@@ -2,16 +2,20 @@ import json
 import yaml
 from kafka import KafkaConsumer
 from pymongo import MongoClient
+import os
 
 # Carregar configurações do arquivo YAML
-with open("config.yaml", "r") as f:
+config_path = os.path.join(os.path.dirname(__file__), '..', 'config.yaml')
+#config_path = os.getenv("CONFIG_PATH", "config.yaml")
+print(f"Loading configuration from: {config_path}")
+
+
+with open(config_path, "r") as f:
     config = yaml.safe_load(f)
 
 # Verifica se o arquivo de configuração foi carregado corretamente
 if not config:
     raise ValueError("Erro ao carregar o arquivo de configuração config.yaml")
-
-print("Keys encontradas no arquivo de configuração:", config.keys())
 
 # Verifica se as chaves necessárias estão presentes
 required_keys = ["kafka", "mongo"]
@@ -19,9 +23,6 @@ for key in required_keys:
     if key not in config:
         raise KeyError(f"Chave '{key}' não encontrada no arquivo de configuração config.yaml")
     
-print("Configuração kafka: ", config.get("kafka"))
-print("Configuração mongo: ", config.get("mongo"))
-
 # Extração segura das variáveis
 kafka_config = config.get("kafka", {})
 mongo_config = config.get("mongo", {})
