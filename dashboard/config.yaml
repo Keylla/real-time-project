@@ -1,8 +1,0 @@
-kafka:
-  bootstrap_servers: localhost:9092
-  topic: trips
-
-mongo:
-  mongo_uri: "mongodb+srv://projectrealtimer:{suasenha}@cluster0.eev9reb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-  mongo_db: "tripsdb"
-  mongo_collection: "trips"

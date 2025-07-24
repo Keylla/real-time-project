@@ -4,48 +4,40 @@ from kafka import KafkaConsumer
 from pymongo import MongoClient
 import os
 
-# Carregar configurações do arquivo YAML
-config_path = os.path.join(os.path.dirname(__file__), '..', 'config.yaml')
-#config_path = os.getenv("CONFIG_PATH", "config.yaml")
-print(f"Loading configuration from: {config_path}")
+# Carregar configurações do arquivo
+kafka_servers = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
+kafka_topic = os.getenv("KAFKA_TOPIC")
+mongo_uri = os.getenv("MONGO_URI")
+mongo_db = os.getenv("MONGO_DB")
+mongo_collection = os.getenv("MONGO_COLLECTION")
 
+if not kafka_servers:
+    raise ValueError("Kafka bootstrap_servers não definido no .env")
 
-with open(config_path, "r") as f:
-    config = yaml.safe_load(f)
+if not kafka_topic:
+    raise ValueError("Kafka topic não definido no .env")
 
-# Verifica se o arquivo de configuração foi carregado corretamente
-if not config:
-    raise ValueError("Erro ao carregar o arquivo de configuração config.yaml")
+if not mongo_uri:
+    raise ValueError("MongoDB URI não definido no .env")
 
-# Verifica se as chaves necessárias estão presentes
-required_keys = ["kafka", "mongo"]
-for key in required_keys:
-    if key not in config:
-        raise KeyError(f"Chave '{key}' não encontrada no arquivo de configuração config.yaml")
-    
-# Extração segura das variáveis
-kafka_config = config.get("kafka", {})
-mongo_config = config.get("mongo", {})
+if not mongo_db:
+    raise ValueError("MongoDB database não definido no .env")
 
-# Validação básica (opcional, mas recomendável)
-if not kafka_config.get("bootstrap_servers"):
-    raise ValueError("Kafka bootstrap_servers não definido no config.yaml")
-
-if not mongo_config.get("mongo_uri"):
-    raise ValueError("MongoDB URI não definido no config.yaml")
+if not mongo_collection:
+    raise ValueError("MongoDB collection não definida no .env")
 
 # Inicializa o consumidor Kafka
 consumer = KafkaConsumer(
-    kafka_config.get("topic", "trips"),
-    bootstrap_servers=kafka_config.get("bootstrap_servers"),
+    kafka_topic,
+    bootstrap_servers=kafka_servers,
     auto_offset_reset="earliest",
     value_deserializer=lambda m: json.loads(m.decode("utf-8"))
 )
 
 # Conecta ao MongoDB Atlas
-mongo = MongoClient(mongo_config["mongo_uri"])
-db = mongo[mongo_config.get("mongo_db", "tripsdb")]
-collection = db[mongo_config.get("mongo_collection", "trips")]
+mongo = MongoClient(mongo_uri)
+db = mongo[mongo_db]
+collection = db[mongo_collection]
 
 # Processa as mensagens
 for message in consumer:
