@@ -30,7 +30,6 @@ services:
       MONGO_INITDB_DATABASE: tripsdb
 
   producer:
-    image: anakeylla/realtimerproject:producer-1.0
     build:
       context: ./producer
     depends_on:
@@ -44,7 +43,6 @@ services:
     volumes:
       - ./producer:/app
   consumer:
-    image: anakeylla/realtimerproject:consumer-1.0
     build:
       context: ./consumer
     depends_on:
@@ -59,7 +57,6 @@ services:
     volumes:
       - ./consumer:/app
   dashboard:
-    image: anakeylla/realtimerproject:dashboard-1.0
     build:
       context: ./dashboard
     ports:
@@ -74,8 +71,9 @@ services:
       - MONGO_COLLECTION=${MONGO_COLLECTION}
     depends_on:
       - mongodb
+    env_file:
+      - .env
   api:
-    image: anakeylla/realtimerproject:api-1.0
     build:
       context: ./api
     ports:

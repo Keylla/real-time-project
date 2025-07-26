@@ -6,6 +6,7 @@ import time
 import os
 import requests
 
+
 # --- Configurações e Conexão ---
 kafka_servers = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
 kafka_topic = os.getenv("KAFKA_TOPIC")
