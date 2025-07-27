@@ -1,14 +1,14 @@
-# Requirements for the Streamlit dashboard
-streamlit==1.35.0
+# Streamlit dashboard
+streamlit
 
 # MongoDB driver
 pymongo==4.7.2
 
-# PyYAML for configuration files
+# PyYAML para configuração dos arquivos
 pyyaml>=5.3
 
-# Pandas for data manipulation
+# Pandas para manipulação
 pandas==2.2.2
 
-# Plotly for data visualization
+# Plotly para visualização
 plotly==5.15.0

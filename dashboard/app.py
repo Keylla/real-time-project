@@ -145,3 +145,22 @@ else:
                 st.info("Coluna 'distance_km' não encontrada nos dados.")
         except Exception as e:
             st.error(f"Erro ao carregar dados: {e}")
+
+# --- Seção de Perguntas e Respostas ---
+st.subheader("❓ Perguntas sobre Viagens")
+
+user_question = st.text_input("Faça sua pergunta sobre as viagens:", "")
+
+if st.button("Obter Resposta"):
+    if user_question:
+        # Chama sua API
+        try:
+            response = requests.post("http://api:5001/ask", json={"question": user_question})
+            if response.status_code == 200:
+                st.write(response.json().get("answer"))
+            else:
+                st.error(f"Erro na API: {response.status_code} - {response.text}")
+        except requests.exceptions.ConnectionError:
+            st.error("Não foi possível conectar à API. Certifique-se de que ela está rodando.")
+    else:
+        st.warning("Por favor, digite uma pergunta.")

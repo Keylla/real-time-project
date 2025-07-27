@@ -82,6 +82,12 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock  # Permite controlar os containers
     environment:
       - DOCKER_BUILDKIT=1
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_DB=${MONGO_DB}
+      - MONGO_COLLECTION=${MONGO_COLLECTION}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      - mongodb
 
 volumes:
   mongodb_data:
