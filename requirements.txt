@@ -1,11 +1,14 @@
-# Flask
-Flask==3.0.3
+# Pandas para manipulação
+pandas==2.2.2
 
 # Kafka core
 kafka-python==2.2.15
 
 # MongoDB driver
 pymongo==4.7.2
+
+# Flask
+Flask==3.0.3
 
 # Dotenv para carregar variáveis de ambiente
 python-dotenv==1.0.1
@@ -18,3 +21,15 @@ requests
 
 # Google Generative AI para integração com a API
 google-generativeai
+
+# PyYAML para configuração de arquivo
+pyyaml>=5.3
+
+# Streamlit dashboard
+streamlit
+
+# Plotly para visualização
+plotly==5.15.0
+
+#Geração de dados fake
+faker==25.2.0

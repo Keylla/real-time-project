@@ -27,11 +27,13 @@ services:
     volumes:
       - mongodb_data:/data/db
     environment:
-      MONGO_INITDB_DATABASE: tripsdb
+      - MONGO_INITDB_DATABASE=${MONGO_DB:-tripsdb}
+
 
   producer:
     build:
       context: ./producer
+    command: python producer.py
     depends_on:
       - kafka
     environment:
@@ -45,6 +47,7 @@ services:
   consumer:
     build:
       context: ./consumer
+    command: python consumer.py
     depends_on:
       - kafka
       - mongodb
@@ -59,6 +62,7 @@ services:
   dashboard:
     build:
       context: ./dashboard
+    command: streamlit run dashboard.py --server.port=8501 --server.address=0.0.0.0
     ports:
       - "8501:8501"
     volumes:
@@ -76,6 +80,7 @@ services:
   api:
     build:
       context: ./api
+    command: python api.py
     ports:
       - "5001:5001"
     volumes:

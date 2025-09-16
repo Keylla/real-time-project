@@ -1,8 +1,0 @@
-# Kafka core
-kafka-python==2.2.15
-
-# MongoDB driver
-pymongo==4.7.2
-
-# PyYAML para configuração de arquivo
-pyyaml>=5.3
