@@ -1,38 +1,27 @@
 import streamlit as st
 import plotly.express as px
 import pandas as pd
-from pymongo import MongoClient
 import time
 import os
 import requests
-
+from infrastructure import connect_to_mongo
 
 # --- Configurações e Conexão ---
 kafka_servers = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
 kafka_topic = os.getenv("KAFKA_TOPIC")
-mongo_uri = os.getenv("MONGO_URI")
-mongo_db = os.getenv("MONGO_DB")
-mongo_collection = os.getenv("MONGO_COLLECTION")
 
 if not kafka_servers:
     raise ValueError("Kafka bootstrap_servers não definido no .env")
 
-if not mongo_uri:
-    raise ValueError("MongoDB URI não definido no .env")
-
-if not mongo_db:
-    raise ValueError("MongoDB database não definido no .env")
-
-if not mongo_collection:
-    raise ValueError("MongoDB collection não definida no .env")
 
 # Função para conectar ao MongoDB e buscar dados ordenados
 @st.cache_data(ttl=5) # Cacheia os dados por 5 segundos para evitar chamadas excessivas ao DB
 def get_data():
-    mongo = MongoClient(mongo_uri)
-    db = mongo[mongo_db]
-    collection = db[mongo_collection]
-    
+    st.info("Conectando ao banco de dados...")
+    collection = connect_to_mongo()
+    if not collection:
+        raise ValueError("Falha ao conectar à coleção MongoDB")
+    st.warning("Banco de dados conectado com sucesso.")
     # Ordena os dados pelo _id de forma decrescente (mais recente primeiro)
     data = list(collection.find().sort('_id', -1)) 
     
@@ -45,7 +34,6 @@ def get_data():
     return df
 
 # --- Funções de Callback para os Toggles ---
-
 def toggle_producer_status():
     if st.session_state.running_producer: # Se o toggle foi marcado para "ligar"
         st.session_state.producer_status_message = "⏳ Iniciando Producer..."

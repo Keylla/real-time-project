@@ -33,3 +33,6 @@ plotly==5.15.0
 
 #Geração de dados fake
 faker==25.2.0
+
+# Setuptools atualizado
+setuptools>=65.5.0

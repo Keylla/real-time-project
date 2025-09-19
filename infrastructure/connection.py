@@ -14,6 +14,9 @@ def connect_to_mongo():
     mongo_uri = os.getenv("MONGO_URI")
     mongo_db = os.getenv("MONGO_DB")
     mongo_collection = os.getenv("MONGO_COLLECTION")
+
+    if not mongo_uri or not mongo_db or not mongo_collection:
+        raise ValueError("MONGO_URI, MONGO_DB ou MONGO_COLLECTION não definidos no .env")
     
     client = MongoClient(mongo_uri)
     db = client[mongo_db]
