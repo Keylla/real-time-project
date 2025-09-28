@@ -3,8 +3,8 @@ import os
 import google.generativeai as genai
 import json
 from dotenv import load_dotenv
-from infrastructure import generate_mongo_query, get_trips_by_query
-from infrastructure import start_docker_container_by_partial_name, stop_docker_container_by_partial_name
+from connection import generate_mongo_query, get_trips_by_query
+from docker_controller import start_docker_container_by_partial_name, stop_docker_container_by_partial_name
 
 # Carrega as variáveis de ambiente do arquivo .env
 load_dotenv()

@@ -1,15 +1,17 @@
 import json
 from kafka import KafkaConsumer
 import os
-from infrastructure import connect_to_mongo
-from dotenv import load_dotenv
-
-# Carrega as variáveis de ambiente do arquivo .env
-load_dotenv()
+from connection import connect_to_mongo
+import logging
 
 # Carregar configurações do arquivo
 kafka_servers = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
 kafka_topic = os.getenv("KAFKA_TOPIC")
+
+logging.basicConfig(level=logging.INFO)
+logging.info("Consumer iniciado...")
+logging.info(f"Kafka Servers: {kafka_servers}")
+logging.info(f"Kafka Topic: {kafka_topic}")
 
 if not kafka_servers:
     raise ValueError("Kafka bootstrap_servers não definido no .env")
@@ -27,9 +29,6 @@ consumer = KafkaConsumer(
 
 # Conecta ao MongoDB Atlas
 collection = connect_to_mongo()
-
-if not collection:
-    raise ValueError("Falha ao conectar à coleção MongoDB")
 
 # Processa as mensagens
 for message in consumer:

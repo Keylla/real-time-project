@@ -4,7 +4,7 @@ import pandas as pd
 import time
 import os
 import requests
-from infrastructure import connect_to_mongo
+from connection import connect_to_mongo
 
 # --- Configurações e Conexão ---
 kafka_servers = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
@@ -17,11 +17,7 @@ if not kafka_servers:
 # Função para conectar ao MongoDB e buscar dados ordenados
 @st.cache_data(ttl=5) # Cacheia os dados por 5 segundos para evitar chamadas excessivas ao DB
 def get_data():
-    st.info("Conectando ao banco de dados...")
     collection = connect_to_mongo()
-    if not collection:
-        raise ValueError("Falha ao conectar à coleção MongoDB")
-    st.warning("Banco de dados conectado com sucesso.")
     # Ordena os dados pelo _id de forma decrescente (mais recente primeiro)
     data = list(collection.find().sort('_id', -1)) 
     
