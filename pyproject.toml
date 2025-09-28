@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "real-time-project"
+version = "0.0.1"
+description = "Um pipeline de engenharia de dados em tempo real para monitoramento de viagens."
+authors = [
+  { name = "Ana Keylla" }, 
+  { name = "Ana Alice" }
+]
+requires-python = ">=3.10"
+
+dependencies = [
+    # Dependências para a API, o produtor e o consumidor
+    "requests",
+    "pandas",
+    "kafka-python",
+    "pymongo",
+    "python-dotenv",
+    "Flask",
+    "google-generativeai",
+    "pyyaml",
+    "plotly",
+    "faker",
+
+    # Dependências para a interface web
+    "streamlit",
+    
+    # Adicionando a biblioteca Docker, essencial para o projeto
+    "docker",
+    "setuptools"
+]
+
+[tool.setuptools]
+include-package-data = true

@@ -4,6 +4,7 @@ import random
 from kafka import KafkaProducer
 from faker import Faker
 import os
+import logging
 
 # Criar uma instância do Faker
 faker = Faker()
@@ -11,6 +12,11 @@ faker = Faker()
 # Carregar configurações do arquivo
 kafka_servers = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
 kafka_topic = os.getenv("KAFKA_TOPIC")
+
+logging.basicConfig(level=logging.INFO)
+logging.info("Producer iniciado...")
+logging.info(f"Kafka Servers: {kafka_servers}")
+logging.info(f"Kafka Topic: {kafka_topic}")
 
 if not kafka_servers:
     raise ValueError("Kafka bootstrap_servers não definido no .env")

@@ -1,5 +1,0 @@
-# Kafka core
-kafka-python==2.2.15
-
-#Geração de dados fake
-faker==25.2.0

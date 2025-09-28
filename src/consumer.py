@@ -1,30 +1,23 @@
 import json
-import yaml
 from kafka import KafkaConsumer
-from pymongo import MongoClient
 import os
+from connection import connect_to_mongo
+import logging
 
 # Carregar configurações do arquivo
 kafka_servers = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
 kafka_topic = os.getenv("KAFKA_TOPIC")
-mongo_uri = os.getenv("MONGO_URI")
-mongo_db = os.getenv("MONGO_DB")
-mongo_collection = os.getenv("MONGO_COLLECTION")
+
+logging.basicConfig(level=logging.INFO)
+logging.info("Consumer iniciado...")
+logging.info(f"Kafka Servers: {kafka_servers}")
+logging.info(f"Kafka Topic: {kafka_topic}")
 
 if not kafka_servers:
     raise ValueError("Kafka bootstrap_servers não definido no .env")
 
 if not kafka_topic:
     raise ValueError("Kafka topic não definido no .env")
-
-if not mongo_uri:
-    raise ValueError("MongoDB URI não definido no .env")
-
-if not mongo_db:
-    raise ValueError("MongoDB database não definido no .env")
-
-if not mongo_collection:
-    raise ValueError("MongoDB collection não definida no .env")
 
 # Inicializa o consumidor Kafka
 consumer = KafkaConsumer(
@@ -35,9 +28,7 @@ consumer = KafkaConsumer(
 )
 
 # Conecta ao MongoDB Atlas
-mongo = MongoClient(mongo_uri)
-db = mongo[mongo_db]
-collection = db[mongo_collection]
+collection = connect_to_mongo()
 
 # Processa as mensagens
 for message in consumer:
