@@ -1,0 +1,31 @@
+FROM apache/airflow:2.9.3-python3.10
+
+# Instala dependências básicas para compilar psycopg2 e outras libs
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Define o diretório de trabalho
+WORKDIR /opt/airflow
+
+USER airflow
+
+# Copia os arquivos do projeto
+COPY pyproject.toml README.md ./
+COPY src ./src
+
+# Instala as dependências via pyproject.toml
+RUN pip install "apache-airflow==${AIRFLOW_VERSION}" --no-cache-dir apache-airflow-providers-docker \
+    apache-airflow-providers-postgres apache-airflow-providers-apache-kafka \
+    apache-airflow-providers-mongo psycopg2-binary \
+    apache-airflow-providers-fab
+
+# Executa entrypoint customizado para inicialização
+USER root
+# Copia entrypoint customizado
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+USER airflow

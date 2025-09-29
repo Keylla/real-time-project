@@ -39,8 +39,27 @@ def generate_trip():
         "city": faker.city()
     }
 
-while True:
+import time
+
+# --- Variável para o limite de registros ---
+MAX_RECORDS = 250
+# ------------------------------------------
+
+counter = 0
+
+# O loop continua enquanto o contador for menor que o limite
+while counter < MAX_RECORDS:
     trip = generate_trip()
+    
+    # Envia a mensagem para o Kafka
     producer.send(kafka_topic, value=trip)
-    print(f"Sent trip: {trip}")
+    
+    # Imprime e incrementa o contador
+    print(f"Sent trip {counter + 1}/{MAX_RECORDS}: {trip}")
+    counter += 1
+    
+    # Pausa entre as mensagens
     time.sleep(2)
+
+# Mensagem de finalização após o loop
+print(f"--- FIM: 250 registros de viagem gerados e enviados para o Kafka. ---")
