@@ -1,9 +1,11 @@
 import pendulum
 from airflow import DAG
 from airflow.providers.docker.operators.docker import DockerOperator
+import os
 
-APP_IMAGE = "real_time_project_app"   # imagem construida no projeto
-DOCKER_NETWORK = "real-time-project_default"  # nome da rede criada pelo docker-compose
+DOCKER_NETWORK = "real-time-project_default"  # rede criada pelo docker-compose
+APP_IMAGE_PRODUCER = "real-time-project-producer:latest" # imagem do producer
+APP_IMAGE_CONSUMER = "real-time-project-consumer:latest" # imagem do consumer
 
 default_args = {
     "owner": "airflow",
@@ -11,48 +13,45 @@ default_args = {
     "retries": 1,
 }
 
+# 🔑 Centraliza todas as variáveis em um dict
+ENV_VARS = {
+    "KAFKA_BROKER": os.getenv("KAFKA_BOOTSTRAP_SERVERS"),
+    "TOPIC_NAME": os.getenv("KAFKA_TOPIC"),
+    "POSTGRES_HOST": os.getenv("POSTGRES_HOST"),
+    "POSTGRES_PORT": os.getenv("POSTGRES_PORT"),
+    "POSTGRES_USER": os.getenv("POSTGRES_USER"),
+    "POSTGRES_PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+    "POSTGRES_DB": os.getenv("POSTGRES_DB"),
+}
+
 with DAG(
     dag_id="real_time_pipeline",
     default_args=default_args,
-    schedule_interval=None,
+    schedule_interval=None,  # só roda manual ou quando você disparar
     catchup=False,
     tags=["real-time"],
 ) as dag:
 
+    # Producer
     start_producer = DockerOperator(
         task_id="start_producer",
-        image=APP_IMAGE,
-        command="python src/real_time_project/producer.py",
-        auto_remove=True,
-        docker_url="unix://var/run/docker.sock",   # 👈 conecta ao Docker
-        network_mode=DOCKER_NETWORK,              # 👈 garante acesso ao Kafka e Postgres
-        environment={
-            "KAFKA_BROKER": "kafka:9092",
-            "TOPIC_NAME": "trips",
-            "POSTGRES_HOST": "postgres",
-            "POSTGRES_PORT": "5432",
-            "POSTGRES_USER": "airflow",
-            "POSTGRES_PASSWORD": "airflow",
-            "POSTGRES_DB": "airflow",
-        },
-    )
-
-    process_consumer = DockerOperator(
-        task_id="process_consumer",
-        image=APP_IMAGE,
-        command="python src/real_time_project/consumer.py",
+        image=APP_IMAGE_PRODUCER,   # 👈 usa a imagem específica
+        command="python src/producer.py",
         auto_remove=True,
         docker_url="unix://var/run/docker.sock",
         network_mode=DOCKER_NETWORK,
-        environment={
-            "KAFKA_BROKER": "kafka:9092",
-            "TOPIC_NAME": "trips",
-            "POSTGRES_HOST": "postgres",
-            "POSTGRES_PORT": "5432",
-            "POSTGRES_USER": "airflow",
-            "POSTGRES_PASSWORD": "airflow",
-            "POSTGRES_DB": "airflow",
-        },
+        environment=ENV_VARS,  # 👈 usa o dict de variáveis
+    )
+
+    # Consumer
+    process_consumer = DockerOperator(
+        task_id="process_consumer",
+        image=APP_IMAGE_CONSUMER,   # 👈 usa a imagem específica
+        command="python src/consumer.py",
+        auto_remove=True,
+        docker_url="unix://var/run/docker.sock",
+        network_mode=DOCKER_NETWORK,
+        environment=ENV_VARS,  # 👈 usa o dict de variáveis
     )
 
     start_producer >> process_consumer

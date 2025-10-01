@@ -5,6 +5,10 @@ from kafka import KafkaProducer
 from faker import Faker
 import os
 import logging
+from dotenv import load_dotenv
+# Carregar variáveis de ambiente do arquivo .env
+
+load_dotenv()
 
 # Criar uma instância do Faker
 faker = Faker()
@@ -57,9 +61,6 @@ while counter < MAX_RECORDS:
     # Imprime e incrementa o contador
     print(f"Sent trip {counter + 1}/{MAX_RECORDS}: {trip}")
     counter += 1
-    
-    # Pausa entre as mensagens
-    time.sleep(2)
 
 # Mensagem de finalização após o loop
 print(f"--- FIM: 250 registros de viagem gerados e enviados para o Kafka. ---")

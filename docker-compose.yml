@@ -29,6 +29,8 @@ services:
       - kafka  # Dependência para comunicação
     ports:
       - "8080:8080"
+    env_file:
+      - .env
     environment:
       &airflow_env
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
@@ -47,6 +49,7 @@ services:
       - ./src:/app/src                # Mapeia o código da aplicação
       - airflow_logs:/opt/airflow/logs # Mapeia os logs do Airflow
       - /var/run/docker.sock:/var/run/docker.sock  # Permite controlar os containers
+      - ./.env:/opt/airflow/.env      # Mapeia o arquivo .env
     command: ["airflow", "webserver"]
     healthcheck:
       test: ["CMD-SHELL", "[ -f /opt/airflow/airflow-webserver.pid ]"]
@@ -65,12 +68,15 @@ services:
     depends_on:
       - postgres
       - airflow-webserver
+    env_file:
+      - .env
     environment: *airflow_env
     volumes:
       - ./src/dags:/opt/airflow/dags
       - ./src:/app/src
       - airflow_logs:/opt/airflow/logs
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./.env:/opt/airflow/.env
     command: ["airflow", "scheduler"]
   
   zookeeper:
