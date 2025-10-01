@@ -24,13 +24,12 @@ dependencies = [
     "pyyaml",
     "plotly",
     "faker",
-
+    
     # Dependências para a interface web
     "streamlit",
     
     # Adicionando a biblioteca Docker, essencial para o projeto
-    "docker",
-    "setuptools"
+    "docker"
 ]
 
 [tool.setuptools]

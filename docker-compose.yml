@@ -1,4 +1,84 @@
 services:
+  # ----------------------------------------
+  # Airflow Metadb (Postgres)
+  # ----------------------------------------
+  postgres:
+    image: postgres:13
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  # ----------------------------------------
+  # Airflow Services
+  # ----------------------------------------
+  airflow-webserver:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    container_name: airflow-webserver
+    restart: always
+    logging:
+      driver: "json-file"
+    depends_on:
+      - postgres
+      - kafka  # Dependência para comunicação
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      &airflow_env
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - _AIRFLOW_WWW_USER_CREATE=False
+      - _AIRFLOW_WWW_USER_USERNAME=airflow
+      - _AIRFLOW_WWW_USER_FIRSTNAME=Airflow
+      - _AIRFLOW_WWW_USER_LASTNAME=Admin
+      - _AIRFLOW_WWW_USER_EMAIL=admin@example.com
+      - _AIRFLOW_WWW_USER_ROLE=Admin
+      - _AIRFLOW_WWW_USER_PASSWORD=airflow
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092 # Acesso ao Kafka
+    volumes:
+      - ./src/dags:/opt/airflow/dags   # Mapeia a pasta de DAGs
+      - ./src:/app/src                # Mapeia o código da aplicação
+      - airflow_logs:/opt/airflow/logs # Mapeia os logs do Airflow
+      - /var/run/docker.sock:/var/run/docker.sock  # Permite controlar os containers
+      - ./.env:/opt/airflow/.env      # Mapeia o arquivo .env
+    command: ["airflow", "webserver"]
+    healthcheck:
+      test: ["CMD-SHELL", "[ -f /opt/airflow/airflow-webserver.pid ]"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+  airflow-scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    container_name: airflow-scheduler
+    restart: always
+    logging:
+      driver: "json-file"
+    depends_on:
+      - postgres
+      - airflow-webserver
+    env_file:
+      - .env
+    environment: *airflow_env
+    volumes:
+      - ./src/dags:/opt/airflow/dags
+      - ./src:/app/src
+      - airflow_logs:/opt/airflow/logs
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./.env:/opt/airflow/.env
+    command: ["airflow", "scheduler"]
+  
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     environment:
@@ -29,11 +109,9 @@ services:
     environment:
       - MONGO_INITDB_DATABASE=${MONGO_DB:-tripsdb}
 
-
   producer:
     build:
       context: .
-    command: python producer.py
     depends_on:
       - kafka
     environment:
@@ -47,7 +125,6 @@ services:
   consumer:
     build:
       context: .
-    command: python consumer.py
     depends_on:
       - kafka
       - mongodb
@@ -100,3 +177,5 @@ services:
 
 volumes:
   mongodb_data:
+  postgres_data:
+  airflow_logs:
