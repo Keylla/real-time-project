@@ -1,113 +1,87 @@
-# 🚗 Real-Time Travel Monitoring System
+# 🚀 Real-Time Project
 
-Projeto acadêmico para simular um sistema de monitoramento de viagens em tempo real utilizando microserviços, Kafka, MongoDB, Flask e Streamlit.
+## 📌 Visão Geral
+Este projeto acadêmico simula um sistema de **processamento de dados em tempo real**, com foco na coleta, ingestão, transformação e visualização de informações geoespaciais de diferentes fontes. O objetivo é gerar **mapas de calor e insights** a partir de dados como localização, categoria e volume de eventos, ajudando na identificação de padrões e oportunidades.
 
-## 📦 Tecnologias Utilizadas
+Exemplos de conclusões possíveis:
+- Detectar aumento de pedidos de **delivery** (mercado, lanches) em uma região e sugerir abertura de estabelecimentos.
+- Identificar necessidade de **farmácias** em áreas com alta demanda de medicamentos.
+- Reconhecer **eventos** em andamento por meio do aumento repentino de solicitações de viagens.
 
-- Python 3.10
-- Apache Kafka
-- MongoDB
-- Docker & Docker Compose
-- Streamlit (dashboard)
-- Flask (API para controle dos serviços)
+---
 
-## 🗂️ Estrutura do Projeto
+## 🛠️ Arquitetura do Projeto
+- **Produção de dados** simulada (API/Producer Kafka).
+- **Ingestão e transporte** via **Apache Kafka**.
+- **Armazenamento** em **MongoDB**.
+- **Painel interativo** em **Streamlit**, permitindo análise visual em tempo real.
 
+---
+
+## 📊 Funcionalidades do Painel
+- **Dados Brutos**: Exibição dos principais atributos capturados:
+  - Latitude / Longitude
+  - Cidade / Bairro / Rua
+  - Distância percorrida (km)
+  - Preço da viagem (R$)
+  - Horário de início e fim
+  - Duração (minutos)
+
+- **Visualização Geográfica**:
+  - Mapa interativo com pontos e regiões de maior atividade.
+  - Geração de mapas de calor.
+
+- **Análises e Insights**:
+  - Tendências por cidade ou bairro.
+  - Identificação de hotspots.
+  - Suporte à tomada de decisão estratégica.
+
+---
+
+## 📦 Estrutura do Repositório
 ```
 real-time-project/
-│
-├── .env                    # Variáveis de ambiente
-├── config.yaml             # Configuração central (deprecado se .env estiver ativo)
-├── docker-compose.yml      # Orquestração dos serviços
-│
-├── producer/               # Serviço produtor de mensagens Kafka
-│   ├── producer.py
-│   ├── Dockerfile
-│
-├── consumer/               # Serviço consumidor e armazenador no MongoDB
-│   ├── consumer.py
-│   ├── Dockerfile
-│
-├── api/                    # API Flask para controle dos serviços
-│   ├── main.py
-│   ├── requirements.txt
-│   ├── Dockerfile
-│
-├── dashboard/              # Interface web com Streamlit
-│   ├── app.py
-│   ├── Dockerfile
-│
-└── requirements.txt        # Dependências globais
+├── dashboard/          # Aplicação Streamlit
+├── infra_estrutura/    # Conexão e serviços compartilhados
+├── producer/           # Produção de dados para Kafka
+├── consumer/           # Consumo e persistência no MongoDB
+├── docker-compose.yml  # Orquestração dos serviços
+├── config.yaml         # Configurações globais do projeto
+└── README.md           # Documentação do projeto
 ```
 
-## 🚀 Executando o Projeto
+---
 
-1. **Clone o repositório:**
-   ```bash
-   git clone https://github.com/Keylla/real-time-project.git
-   cd real-time-project
-   ```
+## ▶️ Executando o Projeto
+### 1. Clonar o repositório
+```bash
+git clone -b keylla_develop_branch https://github.com/Keylla/real-time-project.git
+cd real-time-project
+```
 
-2. **Configure as variáveis de ambiente:**
-   Crie um arquivo `.env` na raiz com o conteúdo:
-   ```env
-   KAFKA_SERVER=kafka:9092
-   MONGO_URI=mongodb://mongo:27017
-   CONFIG_PATH=/app/config.yaml
-   ```
+### 2. Subir os containers Docker
+```bash
+docker-compose up -d --build
+```
 
-3. **Suba os serviços com Docker Compose:**
-   ```bash
-   docker-compose up --build
-   ```
+### 3. Acessar o painel Streamlit
+```bash
+docker exec -it streamlit_app streamlit run app.py
+```
+Ou acessar no navegador: **http://localhost:8501**
 
-4. **Acesse a aplicação:**
-   - **Dashboard (Streamlit):** http://localhost:8501
-   - **API Flask:** http://localhost:5000
+---
 
-## 🛠️ Funcionalidades
+## 📌 Tecnologias Utilizadas
+- **Python** (Producer, Consumer, Dashboard)
+- **Apache Kafka** (mensageria)
+- **MongoDB** (armazenamento)
+- **Streamlit** (visualização)
+- **Docker & Docker Compose** (orquestração)
 
-- Simulação de viagens com dados fictícios
-- Produção de eventos em tempo real com Kafka
-- Armazenamento de dados em MongoDB
-- Visualização em tempo real no dashboard Streamlit
-- API Flask para start/stop de serviços via UI
+---
 
-## 📊 Dashboard
-
-- Atualização manual ou automática
-- Visualização de dados recebidos
-- Gráfico de distribuição de distâncias
-
-## ✅ Comandos úteis
-
-- **Build do projeto limpando cache:**
-  ```bash
-  docker-compose build --no-cache
-  ```
-
-- **Comando para subir container individualmente:**
-  ```bash
-  docker-compose up producer
-  ```
-
-## 📤 Publicação no Docker Hub
-
-1. **Login no Docker Hub:**
-   ```bash
-   docker login
-   ```
-
-2. **Criação da imagem:**
-   ```bash
-   docker build -t seu_usuario/nome_da_imagem .
-   ```
-
-3. **Push para o Docker Hub:**
-   ```bash
-   docker push seu_usuario/nome_da_imagem
-   ```
-
-## 🧪 Status
-
-✅ Em desenvolvimento com arquitetura funcional e componentes integrados.
+## 🧭 Próximos Passos
+- Implementar novos tipos de visualização geográfica.
+- Criar alertas em tempo real com base em thresholds.
+- Expandir para suporte a múltiplas fontes de dados externas.
