@@ -6,6 +6,7 @@ import os
 DOCKER_NETWORK = "real-time-project_default"  # rede criada pelo docker-compose
 APP_IMAGE_PRODUCER = "real-time-project-producer:latest" # imagem do producer
 APP_IMAGE_CONSUMER = "real-time-project-consumer:latest" # imagem do consumer
+APP_IMAGE_ETL = "real-time-project-etl:latest" # imagem do etl
 
 default_args = {
     "owner": "airflow",
@@ -30,6 +31,7 @@ with DAG(
     schedule_interval=None,  # só roda manual ou quando você disparar
     catchup=False,
     tags=["real-time"],
+    
 ) as dag:
 
     # Producer
@@ -54,4 +56,16 @@ with DAG(
         environment=ENV_VARS,  # 👈 usa o dict de variáveis
     )
 
-    start_producer >> process_consumer
+    # ETL
+    process_etl = DockerOperator(
+        task_id="process_etl",
+        image=APP_IMAGE_ETL,   # 👈 usa a imagem específica
+        command="spark-submit /app/etl_trips.py",
+        auto_remove=True,
+        docker_url="unix://var/run/docker.sock",
+        network_mode=DOCKER_NETWORK,
+        environment=ENV_VARS,
+        mount_tmp_dir=False,  # Evita problemas de permissão no /tmp do host
+)
+
+    start_producer >> process_consumer >> process_etl
