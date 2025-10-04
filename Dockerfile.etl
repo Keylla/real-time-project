@@ -1,0 +1,45 @@
+# Base Spark
+FROM apache/spark:3.5.0
+
+# Atualiza pacotes e instala Python pip (caso precise)
+USER root
+# Atualiza pacotes, instala Python3 e pip
+RUN apt-get update && \
+    apt-get install -y python3 python3-pip curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# Configura Spark com Python 3
+ENV PYSPARK_PYTHON=python3
+ENV PYSPARK_DRIVER_PYTHON=python3
+
+# Define JAVA_HOME correto
+ENV JAVA_HOME=/opt/java/openjdk
+ENV PATH=$JAVA_HOME/bin:$PATH:/opt/spark/bin
+
+# Diretório da aplicação
+WORKDIR /app
+
+# Copia os scripts do ETL
+COPY src/etl_trips.py /app/etl_trips.py
+COPY .env /app/.env
+
+# Instala MongoDB Spark Connector
+ENV MONGO_SPARK_VERSION=10.3.0
+RUN curl -L https://repo1.maven.org/maven2/org/mongodb/spark/mongo-spark-connector_2.12/${MONGO_SPARK_VERSION}/mongo-spark-connector_2.12-${MONGO_SPARK_VERSION}.jar \
+    -o /opt/spark/jars/mongo-spark-connector_2.12-${MONGO_SPARK_VERSION}.jar
+
+RUN pip install --no-cache-dir pyspark==3.5.0 python-dotenv pandas pymongo
+
+# Driver Java do MongoDB (core bson)
+RUN curl -L -o /opt/spark/jars/mongodb-driver-sync.jar \
+    https://repo1.maven.org/maven2/org/mongodb/mongodb-driver-sync/4.11.1/mongodb-driver-sync-4.11.1.jar
+
+RUN curl -L -o /opt/spark/jars/bson.jar \
+    https://repo1.maven.org/maven2/org/mongodb/bson/4.11.1/bson-4.11.1.jar
+
+RUN curl -L -o /opt/spark/jars/mongodb-driver-core.jar \
+    https://repo1.maven.org/maven2/org/mongodb/mongodb-driver-core/4.11.1/mongodb-driver-core-4.11.1.jar
+
+
+# Comando padrão (opcional)
+CMD ["bash"]

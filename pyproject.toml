@@ -24,6 +24,7 @@ dependencies = [
     "pyyaml",
     "plotly",
     "faker",
+    "pyspark",
     
     # Dependências para a interface web
     "streamlit",

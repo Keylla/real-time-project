@@ -37,6 +37,11 @@ consumer.assign([partition])
 end_offset = consumer.end_offsets([partition])[partition]
 logging.info(f"Último offset disponível: {end_offset}")
 
+if end_offset == 0:
+    logging.info("Nenhuma mensagem para consumir. Finalizando.")
+    consumer.close()
+    exit(0)
+
 collection = connect_to_mongo()
 
 processed = 0
